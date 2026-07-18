@@ -67,7 +67,7 @@ database:
 
 ```yaml
 download:
-  base_url: "http://172.16.0.18:8081/weaver/weaver.file.FileDownload"
+  base_url: ""
   cookie: "JSESSIONID=xxx; ..."    # Cookie 鉴权（查DB后下载用）
 ```
 
@@ -82,7 +82,7 @@ download:
 ocr:
   provider: "mcp"    # 可选: baidu / aliyun / tencent / mcp
   mcp:
-    url: "http://mcpservergateway.market.alicloudapi.com/.../sse"
+    url: ""
 ```
 
 | provider | 说明 |
@@ -107,10 +107,10 @@ validation:
 
 ```yaml
 oa:
-  base_url: "http://172.16.0.18:8081"
-  login_id: "30837"
-  password: "123456"
-  app_id: "YUNYI"
+  base_url: ""
+  login_id: ""
+  password: ""
+  app_id: ""
   reject_delay_seconds: 5        # 收到 requestId 后等 N 秒再退回
 ```
 
