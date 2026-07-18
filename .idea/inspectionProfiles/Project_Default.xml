@@ -1,0 +1,46 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="33">
+            <item index="0" class="java.lang.String" itemvalue="psycopg-pool" />
+            <item index="1" class="java.lang.String" itemvalue="langchain-openai" />
+            <item index="2" class="java.lang.String" itemvalue="langchain-tavily" />
+            <item index="3" class="java.lang.String" itemvalue="sse-starlette" />
+            <item index="4" class="java.lang.String" itemvalue="langgraph-checkpoint" />
+            <item index="5" class="java.lang.String" itemvalue="anthropic" />
+            <item index="6" class="java.lang.String" itemvalue="langchain-ollama" />
+            <item index="7" class="java.lang.String" itemvalue="mcp" />
+            <item index="8" class="java.lang.String" itemvalue="uvicorn" />
+            <item index="9" class="java.lang.String" itemvalue="langchain-anthropic" />
+            <item index="10" class="java.lang.String" itemvalue="langgraph-checkpoint-postgres" />
+            <item index="11" class="java.lang.String" itemvalue="jsonschema" />
+            <item index="12" class="java.lang.String" itemvalue="langgraph" />
+            <item index="13" class="java.lang.String" itemvalue="typer" />
+            <item index="14" class="java.lang.String" itemvalue="langgraph-prebuilt" />
+            <item index="15" class="java.lang.String" itemvalue="ollama" />
+            <item index="16" class="java.lang.String" itemvalue="rich" />
+            <item index="17" class="java.lang.String" itemvalue="langgraph-sdk" />
+            <item index="18" class="java.lang.String" itemvalue="langchain-openrouter" />
+            <item index="19" class="java.lang.String" itemvalue="click" />
+            <item index="20" class="java.lang.String" itemvalue="langchain-mcp-adapters" />
+            <item index="21" class="java.lang.String" itemvalue="openai" />
+            <item index="22" class="java.lang.String" itemvalue="fastmcp" />
+            <item index="23" class="java.lang.String" itemvalue="fastapi" />
+            <item index="24" class="java.lang.String" itemvalue="langchain-classic" />
+            <item index="25" class="java.lang.String" itemvalue="psycopg" />
+            <item index="26" class="java.lang.String" itemvalue="dashscope" />
+            <item index="27" class="java.lang.String" itemvalue="langchain-core" />
+            <item index="28" class="java.lang.String" itemvalue="aiohttp" />
+            <item index="29" class="java.lang.String" itemvalue="langchain-text-splitters" />
+            <item index="30" class="java.lang.String" itemvalue="openrouter" />
+            <item index="31" class="java.lang.String" itemvalue="tencentcloud-sdk-python" />
+            <item index="32" class="java.lang.String" itemvalue="langchain-experimental" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

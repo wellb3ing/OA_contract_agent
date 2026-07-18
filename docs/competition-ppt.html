@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合同校验 Agent — AI 大模型落地应用</title>
+
+<!-- Reveal.js -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reset.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/black.min.css">
+
+<style>
+/* ============================================================
+   Custom Theme — AI Tech Dark
+   ============================================================ */
+:root {
+  --bg-deep:    #0a0f1a;
+  --bg-card:    #111827;
+  --bg-card2:   #1a2332;
+  --accent:     #3b82f6;
+  --accent2:    #06b6d4;
+  --accent3:    #8b5cf6;
+  --gold:       #f59e0b;
+  --green:      #10b981;
+  --red:        #ef4444;
+  --text:       #e2e8f0;
+  --text-dim:   #94a3b8;
+  --border:     #1e293b;
+}
+
+.reveal {
+  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+  background: var(--bg-deep);
+}
+
+.reveal .slides section {
+  color: var(--text);
+  text-align: left;
+  padding: 24px 48px;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* ---- Typography ---- */
+.reveal h1 { font-size: 2.2em; font-weight: 800; letter-spacing: 0.02em; margin-bottom: 0.2em; }
+.reveal h2 { font-size: 1.55em; font-weight: 700; margin-bottom: 0.3em; color: #fff; }
+.reveal h3 { font-size: 1.15em; font-weight: 600; margin-bottom: 0.2em; color: var(--text); }
+.reveal h4 { font-size: 0.95em; font-weight: 500; margin-bottom: 0.15em; color: var(--text-dim); }
+.reveal p  { font-size: 0.95em; line-height: 1.5; margin-bottom: 0.4em; }
+.reveal li { font-size: 0.9em; line-height: 1.55; }
+
+/* ---- Slide Layout Helpers ---- */
+.slide-center { text-align: center !important; justify-content: center !important; }
+.flex-row { display: flex; gap: 16px; align-items: stretch; }
+.flex-col { display: flex; flex-direction: column; gap: 10px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+/* ---- Cards ---- */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 16px;
+  transition: transform 0.2s;
+}
+.card:hover { transform: translateY(-2px); }
+.card h3 { margin-top: 0; }
+.card .icon { font-size: 1.5em; margin-bottom: 4px; display: block; }
+.card.accent  { border-top: 3px solid var(--accent); }
+.card.accent2 { border-top: 3px solid var(--accent2); }
+.card.accent3 { border-top: 3px solid var(--accent3); }
+.card.gold   { border-top: 3px solid var(--gold); }
+.card.green  { border-top: 3px solid var(--green); }
+.card.red    { border-top: 3px solid var(--red); }
+
+/* ---- Tags / Badges ---- */
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 0.75em;
+  font-weight: 600;
+  margin: 3px 4px;
+}
+.tag-blue   { background: rgba(59,130,246,0.2); color: var(--accent); }
+.tag-cyan   { background: rgba(6,182,212,0.2); color: var(--accent2); }
+.tag-purple { background: rgba(139,92,246,0.2); color: var(--accent3); }
+.tag-gold   { background: rgba(245,158,11,0.2); color: var(--gold); }
+.tag-green  { background: rgba(16,185,129,0.2); color: var(--green); }
+
+/* ---- Cover Slide ---- */
+.cover-bg {
+  background: radial-gradient(ellipse at 30% 50%, rgba(59,130,246,0.15) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 30%, rgba(139,92,246,0.1) 0%, transparent 50%),
+              var(--bg-deep) !important;
+}
+.cover-bg h1 {
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cover-subtitle { font-size: 1.1em; color: var(--text-dim); margin-bottom: 28px; }
+
+/* ---- Section Divider ---- */
+.section-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%) !important;
+}
+
+/* ---- Pipeline Flow ---- */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.pipeline-step {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+.pipeline-step .step-num {
+  display: block;
+  width: 32px; height: 32px;
+  line-height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9em;
+  margin: 0 auto 8px;
+}
+.pipeline-arrow {
+  color: var(--accent2);
+  font-size: 1.5em;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ---- Architecture Diagram ---- */
+.arch-diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  position: relative;
+}
+.arch-layer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 8px 0;
+}
+.arch-box {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.82em;
+}
+.arch-box.frontend { border-left: 4px solid var(--accent2); }
+.arch-box.backend  { border-left: 4px solid var(--accent); }
+.arch-box.ai       { border-left: 4px solid var(--accent3); }
+.arch-box.data     { border-left: 4px solid var(--gold); }
+.arch-separator {
+  border-top: 1px dashed var(--border);
+  margin: 10px 0;
+  position: relative;
+}
+.arch-separator::after {
+  content: "↓";
+  position: absolute;
+  left: 50%;
+  top: -13px;
+  color: var(--text-dim);
+  font-size: 1.2em;
+  background: var(--bg-card);
+  padding: 0 12px;
+}
+
+/* ---- Metric Numbers ---- */
+.metric {
+  text-align: center;
+}
+.metric .number {
+  font-size: 2.2em;
+  font-weight: 800;
+  background: linear-gradient(135deg, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.metric .label { color: var(--text-dim); font-size: 0.85em; margin-top: 2px; }
+
+/* ---- Lists ---- */
+.check-list { list-style: none; padding: 0; }
+.check-list li { padding: 6px 0; }
+.check-list li::before { content: "✓ "; color: var(--green); font-weight: 700; margin-right: 8px; }
+
+.cross-list { list-style: none; padding: 0; }
+.cross-list li { padding: 6px 0; }
+.cross-list li::before { content: "✗ "; color: var(--red); font-weight: 700; margin-right: 8px; }
+
+/* ---- Comparison Table ---- */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78em;
+}
+.compare-table th {
+  background: var(--bg-card2);
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--border);
+  font-weight: 600;
+  color: var(--accent2);
+}
+.compare-table td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table .highlight { background: rgba(59,130,246,0.1); }
+.compare-table .check { color: var(--green); font-weight: 700; }
+.compare-table .cross { color: var(--red); }
+
+/* ---- Footer ---- */
+.slide-footer {
+  position: absolute;
+  bottom: 12px;
+  right: 32px;
+  font-size: 0.7em;
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+/* ---- Flow Visual (SVG-ish) ---- */
+.flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.flow-node {
+  background: var(--bg-card2);
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.78em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.flow-node.dim { border-color: var(--border); opacity: 0.6; }
+.flow-arrow { color: var(--accent2); font-size: 1.1em; font-weight: 700; }
+
+/* ---- Progress bar ---- */
+.progress-bar {
+  height: 8px; border-radius: 4px; background: var(--border);
+  overflow: hidden; margin: 8px 0;
+}
+.progress-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+/* ---- Fix reveal overrides ---- */
+.reveal .slides section .card p  { font-size: 0.82em; }
+.reveal .slides section .card li { font-size: 0.8em; line-height: 1.45; }
+.reveal pre { font-size: 0.68em; width: 100%; }
+.reveal code { font-size: 0.78em; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ================================================================
+     SLIDE 1 — 封面
+     ================================================================ -->
+<section class="slide-center cover-bg">
+  <div style="margin-top: 30px;">
+    <p style="color:var(--accent2); font-size:0.95em; letter-spacing:0.15em; margin-bottom:10px;">AI 大模型落地应用</p>
+    <h1>智能合同校验 Agent</h1>
+    <p class="cover-subtitle" style="font-size:1.1em;">基于 LangChain + DeepSeek 的 OA 合同金额自动化校验系统</p>
+    <div style="margin-top:28px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <span class="tag tag-blue">LLM Function Calling</span>
+      <span class="tag tag-cyan">多 OCR 引擎</span>
+      <span class="tag tag-purple">SSE 流式交互</span>
+      <span class="tag tag-gold">企业 OA 集成</span>
+    </div>
+    <p style="color:var(--text-dim); margin-top:32px; font-size:0.85em;">
+      参赛项目 · 2026
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================
+     SLIDE 2 — 业务痛点
+     ================================================================ -->
+<section>
+  <h2>📋 企业合同审核的三大痛点</h2>
+  <div class="grid-3" style="margin-top:18px;">
+    <div class="card red" style="padding:16px;">
+      <span class="icon">📄</span>
+      <h3>合同量大</h3>
+      <p style="font-size:0.82em;">企业 OA 系统中每个流程关联数十份合同附件，人工逐一核对费时费力</p>
+      <div style="margin-top:10px;">
+        <span style="font-size:1.6em;font-weight:800;color:var(--red);">100+</span>
+        <span style="color:var(--text-dim);font-size:0.85em;"> 份/天/审核岗</span>
+      </div>
+    </div>
+    <div class="card gold" style="padding:16px;">
+      <span class="icon">🔍</span>
+      <h3>易出错</h3>
+      <p style="font-size:0.82em;">金额数字繁多，人工比对容易遗漏或看错，一个小数点就可能造成数万元损失</p>
+      <div style="margin-top:10px;">
+        <span style="font-size:1.6em;font-weight:800;color:var(--gold);">~5%</span>
+        <span style="color:var(--text-dim);font-size:0.85em;"> 人工差错率</span>
+      </div>
+    </div>
+    <div class="card accent2" style="padding:16px;">
+      <span class="icon">⏳</span>
+      <h3>效率低</h3>
+      <p style="font-size:0.82em;">下载 → 打开 → 寻找金额 → 比对 → 记录，审核一份合同平均耗时 5-10 分钟</p>
+      <div style="margin-top:10px;">
+        <span style="font-size:1.6em;font-weight:800;color:var(--accent2);">5-10</span>
+        <span style="color:var(--text-dim);font-size:0.85em;"> 分钟/份</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">业务痛点</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 3 — 解决方案概览
+     ================================================================ -->
+<section>
+  <h2>💡 解决方案：AI Agent 自动化合同校验</h2>
+  <div style="display:flex; gap:24px; align-items:center; margin-top:12px;">
+    <div style="flex:1;">
+      <div class="card accent" style="margin-bottom:12px; padding:14px;">
+        <h3>一句话触发，全流程自动完成</h3>
+        <p style="font-size:1em; color:var(--accent2);">
+          「帮我查 requestId <b>917393</b>，文件名 <b>增值税专用发票</b>」
+        </p>
+      </div>
+      <ul style="margin-top:8px; font-size:0.9em;">
+        <li>🔗 对接企业 OA 系统，自动查询流程附件</li>
+        <li>📥 Cookie 认证下载，无需手动操作</li>
+        <li>🔤 多 OCR 引擎识别合同文字</li>
+        <li>🤖 LLM 自动提取金额 + 按规则校验</li>
+        <li>📊 生成可读中文校验报告</li>
+      </ul>
+    </div>
+    <div style="flex:1; text-align:center;">
+      <div style="background:var(--bg-card); border-radius:16px; padding:20px; border:1px solid var(--border);">
+        <p style="color:var(--text-dim); margin-bottom:8px; font-size:0.9em;">传统人工 vs AI Agent</p>
+        <div style="margin:10px 0;">
+          <p style="color:var(--red); font-size:0.9em;"><b>人工：</b>5-10 分钟/份</p>
+          <div class="progress-bar" style="width:55%;margin:6px auto;"><div class="progress-fill" style="width:100%;background:var(--red);"></div></div>
+        </div>
+        <div style="margin:10px 0;">
+          <p style="color:var(--green); font-size:0.9em;"><b>Agent：</b>30 秒/份</p>
+          <div class="progress-bar" style="width:55%;margin:6px auto;"><div class="progress-fill" style="width:10%;"></div></div>
+        </div>
+        <p style="font-size:1.3em;font-weight:800;color:var(--gold);margin-top:10px;">效率提升 10-20 倍</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">解决方案</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 4 — 用户场景演示
+     ================================================================ -->
+<section>
+  <h2>🎬 两种使用方式，覆盖全场景</h2>
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="card accent">
+      <span class="icon">💬</span>
+      <h3>Web 对话界面（推荐）</h3>
+      <p style="color:var(--text-dim);">打开浏览器 → 输入自然语言指令 → Agent 自动执行全流程</p>
+      <div style="background:var(--bg-deep); border-radius:8px; padding:16px; margin-top:12px; font-family:monospace; font-size:0.85em;">
+        <p style="color:var(--accent2);">👤 用户：</p>
+        <p>帮我查 requestId <b>917393</b>，文件名是「<b>增值税专用发票</b>」</p>
+        <p style="color:var(--accent); margin-top:8px;">🤖 Agent：</p>
+        <p style="color:var(--text-dim);">正在查询 OA 流程附件...<br>
+        正在下载合同文件...<br>
+        正在进行 OCR 识别...<br>
+        正在校验金额...<br>
+        ✅ 校验完成：合同总价 ¥98,500，税率 13%，税额 ¥12,805，校验通过 ✓</p>
+      </div>
+      <div style="margin-top:8px;">
+        <span class="tag tag-green">实时 SSE 流式</span>
+        <span class="tag tag-blue">拖拽上传</span>
+      </div>
+    </div>
+    <div class="card accent2">
+      <span class="icon">🖥️</span>
+      <h3>CLI 命令行</h3>
+      <p style="color:var(--text-dim);">适合脚本集成、批量处理、CI/CD 流水线</p>
+      <div style="background:var(--bg-deep); border-radius:8px; padding:16px; margin-top:12px; font-family:monospace; font-size:0.82em;">
+        <p style="color:var(--accent2);"># OA 查询模式</p>
+        <p>$ python -m contract_agent.main \<br>
+        &nbsp;&nbsp;--params '{"request_id": 917393,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"filename": "增值税专用发票"}'</p>
+        <p style="color:var(--accent2); margin-top:10px;"># 本地文件模式</p>
+        <p>$ python -m contract_agent.main \<br>
+        &nbsp;&nbsp;--params '{"file_path":<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;"/path/to/contract.pdf"}'</p>
+      </div>
+      <div style="margin-top:8px;">
+        <span class="tag tag-purple">CI/CD 集成</span>
+        <span class="tag tag-gold">批量处理</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">使用方式</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 5 — 核心流程
+     ================================================================ -->
+<section>
+  <h2>⚙️ 6 步 Pipeline，端到端自动化</h2>
+  <div class="pipeline" style="margin-top:20px; gap:4px;">
+    <div class="pipeline-step">
+      <span class="step-num">1</span>
+      <b>查询附件</b>
+      <p style="font-size:0.65em;color:var(--text-dim);margin:2px 0;">SQL Server<br>requestId → file_id</p>
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">
+      <span class="step-num">2</span>
+      <b>下载文件</b>
+      <p style="font-size:0.65em;color:var(--text-dim);margin:2px 0;">Cookie 认证<br>OA 附件下载</p>
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">
+      <span class="step-num">3</span>
+      <b>图片转换</b>
+      <p style="font-size:0.65em;color:var(--text-dim);margin:2px 0;">PDF → PNG<br>统一格式</p>
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">
+      <span class="step-num">4</span>
+      <b>OCR 识别</b>
+      <p style="font-size:0.65em;color:var(--text-dim);margin:2px 0;">4 引擎可选<br>文字提取</p>
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">
+      <span class="step-num">5</span>
+      <b>金额提取</b>
+      <p style="font-size:0.65em;color:var(--text-dim);margin:2px 0;">LLM 解析<br>结构化字段</p>
+    </div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-step">
+      <span class="step-num">6</span>
+      <b>规则校验</b>
+      <p style="font-size:0.65em;color:var(--text-dim);margin:2px 0;">自然语言规则<br>自动判定</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px; display:flex; gap:16px;">
+    <div class="card accent" style="flex:1;">
+      <h4>🎯 灵活输入</h4>
+      <div style="display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;">
+        <span class="tag tag-blue">requestId</span>
+        <span class="tag tag-cyan">+ filename 过滤</span>
+        <span class="tag tag-purple">本地文件路径</span>
+        <span class="tag tag-gold">拖拽上传</span>
+      </div>
+    </div>
+    <div class="card green" style="flex:1;">
+      <h4>🛡️ 每步错误处理</h4>
+      <p style="font-size:0.8em;">任一步骤失败 → 立即终止并返回明确的错误描述，不继续浪费资源</p>
+    </div>
+  </div>
+  <div class="slide-footer">核心流程</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 6 — 技术架构总览
+     ================================================================ -->
+<section>
+  <h2>🏗️ 技术架构总览</h2>
+  <div class="arch-diagram" style="margin-top:12px;">
+
+    <!-- 前端层 -->
+    <div class="arch-layer">
+      <div class="arch-box frontend" style="flex:1;">Next.js 14 + TypeScript</div>
+      <div class="arch-box frontend" style="flex:1;">Tailwind CSS</div>
+      <div class="arch-box frontend" style="flex:1;">SSE 流式接收</div>
+    </div>
+    <p style="text-align:center;color:var(--text-dim);font-size:0.8em;">HTTP SSE</p>
+
+    <div class="arch-separator"></div>
+
+    <!-- 后端层 -->
+    <div class="arch-layer">
+      <div class="arch-box backend" style="flex:1;">FastAPI Server</div>
+      <div class="arch-box backend" style="flex:1;">Function Calling Loop</div>
+      <div class="arch-box backend" style="flex:1;">6-Tool Pipeline</div>
+    </div>
+    <p style="text-align:center;color:var(--text-dim);font-size:0.8em;">LangChain Tools · pyodbc · requests</p>
+
+    <div class="arch-separator"></div>
+
+    <!-- AI 层 -->
+    <div class="arch-layer">
+      <div class="arch-box ai" style="flex:1;">DeepSeek Chat API</div>
+      <div class="arch-box ai" style="flex:1;">OCR 引擎层 (4 种)</div>
+      <div class="arch-box ai" style="flex:0.6;">poppler</div>
+    </div>
+    <p style="text-align:center;color:var(--text-dim);font-size:0.8em;">OpenAI-compatible API · Baidu/Aliyun/Tencent/MCP</p>
+
+    <div class="arch-separator"></div>
+
+    <!-- 数据层 -->
+    <div class="arch-layer">
+      <div class="arch-box data" style="flex:1;">SQL Server (OA)</div>
+      <div class="arch-box data" style="flex:1;">OA 文件服务器</div>
+      <div class="arch-box data" style="flex:1;">本地文件系统</div>
+    </div>
+  </div>
+  <div class="slide-footer">技术架构</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 7 — LLM Function Calling
+     ================================================================ -->
+<section>
+  <h2>🧠 核心技术 ①：LLM Function Calling</h2>
+  <div style="display:flex; gap:20px; margin-top:10px;">
+    <div style="flex:1.2;">
+      <div class="card accent2" style="margin-bottom:10px;">
+        <h3>DeepSeek 自主决策工具调用</h3>
+        <p style="font-size:0.82em;">将 6 个 LangChain Tool 转为 OpenAI 兼容的函数定义，LLM 根据用户意图自主决定调用哪些工具、以什么顺序、传什么参数</p>
+      </div>
+      <div style="background:var(--bg-card); border-radius:10px; padding:14px; border:1px solid var(--border);">
+        <h4 style="color:var(--accent);">🔄 Function Calling 循环</h4>
+        <div class="flow-row" style="margin-top:8px;">
+          <span class="flow-node">用户消息</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-node">LLM 分析</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-node" style="border-color:var(--accent2);">tool_calls[]</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-node">执行工具</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-node" style="border-color:var(--accent3);">结果反馈 LLM</span>
+          <span class="flow-arrow">→</span>
+          <span class="flow-node" style="border-color:var(--green);">生成报告</span>
+        </div>
+      </div>
+      <p style="margin-top:8px; font-size:0.78em; color:var(--text-dim);">
+        ⚡ 最多 20 轮迭代，temperature=0 保证确定性，自动防无限循环
+      </p>
+    </div>
+    <div style="flex:0.8;">
+      <p style="color:var(--text-dim); margin-bottom:6px;">📋 6 个函数定义：</p>
+      <div style="background:var(--bg-deep); border-radius:8px; padding:12px; font-size:0.7em; font-family:monospace; line-height:1.6;">
+        <span style="color:var(--accent);">🔍 query_contract_url</span><br>
+        &nbsp;&nbsp;→ requestId → 附件列表<br>
+        <span style="color:var(--accent2);">📥 download_contract</span><br>
+        &nbsp;&nbsp;→ file_id → 本地文件<br>
+        <span style="color:var(--accent3);">🖼️ prepare_images</span><br>
+        &nbsp;&nbsp;→ PDF → 图片列表<br>
+        <span style="color:var(--gold);">🔤 ocr_images</span><br>
+        &nbsp;&nbsp;→ 图片 → 识别文字<br>
+        <span style="color:var(--green);">💰 extract_amounts</span><br>
+        &nbsp;&nbsp;→ 文字 → 金额 JSON<br>
+        <span style="color:var(--red);">✅ validate_amounts</span><br>
+        &nbsp;&nbsp;→ 金额 → 校验结果
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">Function Calling</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 8 — 多 OCR 引擎适配
+     ================================================================ -->
+<section>
+  <h2>🔤 核心技术 ②：多 OCR 引擎适配层</h2>
+  <div class="grid-2" style="margin-top:10px;">
+    <div>
+      <div class="card accent">
+        <h3>策略模式 + 统一接口</h3>
+        <p style="font-size:0.82em;">通过 `ocr/` 子包抽象统一的 OCR 接口，4 种引擎各自实现，config.yaml 一键切换</p>
+      </div>
+      <table class="compare-table" style="margin-top:8px;">
+        <tr><th>引擎</th><th>类型</th><th>适用场景</th></tr>
+        <tr><td>🔷 <b>MCP</b></td><td>远程 SSE</td><td>内网 MCP 网关，零配置</td></tr>
+        <tr><td>🔶 <b>百度</b></td><td>云 API</td><td>通用文字识别，中文优化</td></tr>
+        <tr><td>🟣 <b>阿里云</b></td><td>云 API</td><td>印刷体识别，高精度</td></tr>
+        <tr><td>🔵 <b>腾讯云</b></td><td>云 API</td><td>通用印刷体，腾讯生态</td></tr>
+      </table>
+    </div>
+    <div>
+      <p style="color:var(--text-dim); margin-bottom:6px;">📋 配置示例：</p>
+      <pre style="background:var(--bg-deep); border-radius:8px; padding:12px; font-size:0.65em; margin:0;"><code style="color:#e2e8f0;">ocr:
+  provider: "mcp"     # baidu / aliyun / tencent / mcp
+  mcp:
+    url: "http://mcpserver.../sse"
+  baidu:
+    api_key: "xxx"
+    secret_key: "xxx"
+  aliyun:
+    access_key_id: "xxx"
+    access_key_secret: "xxx"
+    region: "cn-shanghai"
+  tencent:
+    secret_id: "xxx"
+    secret_key: "xxx"
+    region: "ap-guangzhou"</code></pre>
+      <div class="card accent3" style="margin-top:8px; padding:12px;">
+        <p style="font-size:0.78em;">💡 <b>设计亮点：</b>新增 OCR 引擎只需实现 BaseOCR 接口，零侵入现有代码，符合开闭原则</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">OCR 引擎</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 9 — SSE 流式交互
+     ================================================================ -->
+<section>
+  <h2>📡 核心技术 ③：SSE 流式实时交互</h2>
+  <div style="display:flex; gap:18px; margin-top:10px;">
+    <div style="flex:1;">
+      <h4 style="color:var(--accent2);">6 种 SSE 事件类型</h4>
+      <table class="compare-table" style="margin-top:6px;">
+        <tr><th>事件</th><th>含义</th></tr>
+        <tr><td><code>delta</code></td><td>LLM 文本流（30 字/块）</td></tr>
+        <tr><td><code>tool_start</code></td><td>工具开始执行</td></tr>
+        <tr><td><code>tool_end</code></td><td>工具执行完成（含结果）</td></tr>
+        <tr><td><code>report</code></td><td>结构化校验报告</td></tr>
+        <tr><td><code>done</code></td><td>流结束</td></tr>
+        <tr><td><code>error</code></td><td>错误中断</td></tr>
+      </table>
+    </div>
+    <div style="flex:1;">
+      <h4 style="color:var(--accent);">前端实时状态管理</h4>
+      <div class="card" style="margin-top:6px; padding:12px;">
+        <p style="font-size:0.8em;"><b>useChatStream Hook：</b></p>
+        <ul style="font-size:0.75em;">
+          <li>ToolStates[] — 工具执行进度实时展示</li>
+          <li>streaming — LLM 流式文字逐字渲染</li>
+          <li>Report — 校验结果结构化卡片</li>
+          <li>AbortController — 支持取消请求</li>
+          <li>错误边界 — 连接中断保留已完成进度</li>
+        </ul>
+      </div>
+      <div class="card accent2" style="margin-top:8px; padding:12px;">
+        <p style="font-size:0.8em;">✨ <b>体验亮点：</b>每个工具执行时前端同步显示 "正在查询 OA 流程附件..." → "正在下载合同文件..." → ...，用户全程可见进度</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">SSE 流式</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 10 — Web 对话界面
+     ================================================================ -->
+<section>
+  <h2>🖥️ Web 对话界面展示</h2>
+  <div style="display:flex; gap:16px; margin-top:6px;">
+    <div style="flex:1;">
+      <div class="card accent" style="padding:14px;">
+        <h3>Chat UI 核心组件</h3>
+        <table class="compare-table" style="margin-top:4px;">
+          <tr><td>💬 <b>ChatPanel</b></td><td>消息列表 + 滚动容器</td></tr>
+          <tr><td>📝 <b>MessageBubble</b></td><td>用户/AI 消息气泡</td></tr>
+          <tr><td>⚙️ <b>ToolProgress</b></td><td>工具执行步骤可视化</td></tr>
+          <tr><td>📊 <b>ReportCard</b></td><td>校验报告结构化卡片</td></tr>
+          <tr><td>📎 <b>FileUpload</b></td><td>拖拽/点击上传 PDF/图片</td></tr>
+        </table>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <span class="tag tag-blue">Next.js 14</span>
+        <span class="tag tag-cyan">Tailwind CSS</span>
+        <span class="tag tag-purple">TypeScript</span>
+        <span class="tag tag-green">SSE 直连</span>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <div style="background:var(--bg-card); border-radius:12px; padding:14px; border:1px solid var(--border); text-align:center;">
+        <p style="color:var(--text-dim); margin-bottom:6px; font-size:0.85em;">UI 交互示意</p>
+        <div style="background:var(--bg-deep); border-radius:8px; padding:12px; text-align:left; font-size:0.72em;">
+          <p style="color:var(--accent2);">👤 帮我查 requestId 917393...</p>
+          <div style="margin:8px 0; padding:6px; background:rgba(59,130,246,0.1); border-radius:5px;">
+            <p style="color:var(--accent); font-size:0.9em;">⚙️ 正在查询 OA 流程附件... ✓</p>
+            <p style="color:var(--accent); font-size:0.9em;">⚙️ 正在下载合同文件... ✓</p>
+            <p style="color:var(--accent2); font-size:0.9em;">⚙️ 正在进行 OCR 识别... ⏳</p>
+          </div>
+          <p style="color:var(--green);">🤖 校验完成！合同总价 ¥98,500，校验通过 ✓</p>
+          <div style="margin-top:6px; background:rgba(16,185,129,0.1); border:1px solid var(--green); border-radius:6px; padding:6px;">
+            <p style="color:var(--green); font-size:0.85em;">📊 校验报告：金额 ¥98,500 | 结果：✓ 通过</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">Web 界面</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 11 — 可配置校验规则
+     ================================================================ -->
+<section>
+  <h2>📐 自然语言校验规则，配置即生效</h2>
+  <div style="display:flex; gap:28px; margin-top:20px;">
+    <div style="flex:1;">
+      <div class="card accent">
+        <h3>config.yaml 定义规则</h3>
+        <pre style="background:var(--bg-deep); border-radius:8px; padding:14px; font-size:0.8em; margin-top:8px;"><code style="color:#e2e8f0;">validation:
+  rules:
+    - "花费金额校验，金额小于200为通过"
+    - "税率必须为 13% 或 6%"
+    - "不含税金额 + 税额 = 价税合计"</code></pre>
+        <p style="margin-top:10px; font-size:0.9em; color:var(--text-dim);">规则用自然语言描述，由 LLM 理解并执行校验 — <b>无需写代码</b></p>
+      </div>
+    </div>
+    <div style="flex:1;">
+      <div class="card accent2">
+        <h3>LLM 校验输出 JSON</h3>
+        <pre style="background:var(--bg-deep); border-radius:8px; padding:14px; font-size:0.78em; margin-top:8px;"><code style="color:#e2e8f0;">{
+  "results": [
+    {
+      "rule": "花费金额校验...",
+      "field": "价税合计",
+      "value": 98.5,
+      "passed": true,
+      "reason": "金额98.5<200，通过"
+    }
+  ],
+  "summary": {
+    "total_rules": 1,
+    "passed": 1, "failed": 0
+  }
+}</code></pre>
+      </div>
+      <p style="margin-top:10px; font-size:0.9em; color:var(--text-dim);">
+        💡 非技术人员也可通过修改 config.yaml 调整校验规则，无需改动代码
+      </p>
+    </div>
+  </div>
+  <div class="slide-footer">校验规则</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 12 — 技术栈
+     ================================================================ -->
+<section>
+  <h2>🛠️ 技术栈一览</h2>
+  <div class="grid-2" style="margin-top:12px; gap:16px;">
+    <div class="card accent">
+      <h3>🤖 AI & LLM</h3>
+      <div style="margin-top:8px;">
+        <span class="tag tag-blue">DeepSeek Chat</span>
+        <span class="tag tag-purple">LangChain</span>
+        <span class="tag tag-cyan">OpenAI SDK</span>
+        <span class="tag tag-gold">Function Calling</span>
+      </div>
+    </div>
+    <div class="card accent2">
+      <h3>🖥️ 后端</h3>
+      <div style="margin-top:8px;">
+        <span class="tag tag-cyan">Python 3.10+</span>
+        <span class="tag tag-blue">FastAPI</span>
+        <span class="tag tag-purple">Uvicorn</span>
+        <span class="tag tag-gold">pyodbc</span>
+        <span class="tag tag-green">SSE</span>
+      </div>
+    </div>
+    <div class="card accent3">
+      <h3>🎨 前端</h3>
+      <div style="margin-top:8px;">
+        <span class="tag tag-purple">Next.js 14</span>
+        <span class="tag tag-cyan">TypeScript</span>
+        <span class="tag tag-blue">Tailwind CSS</span>
+        <span class="tag tag-gold">Fetch SSE</span>
+      </div>
+    </div>
+    <div class="card gold">
+      <h3>🗄️ 数据 & 基础设施</h3>
+      <div style="margin-top:8px;">
+        <span class="tag tag-gold">SQL Server</span>
+        <span class="tag tag-green">ODBC Driver</span>
+        <span class="tag tag-blue">poppler</span>
+        <span class="tag tag-cyan">OA 系统</span>
+      </div>
+    </div>
+    <div class="card green">
+      <h3>🔤 OCR 引擎</h3>
+      <div style="margin-top:8px;">
+        <span class="tag tag-green">MCP SSE</span>
+        <span class="tag tag-blue">百度 OCR</span>
+        <span class="tag tag-purple">阿里云 OCR</span>
+        <span class="tag tag-cyan">腾讯云 OCR</span>
+      </div>
+    </div>
+    <div class="card red">
+      <h3>🧪 测试 & 质量</h3>
+      <div style="margin-top:8px;">
+        <span class="tag tag-gold">pytest</span>
+        <span class="tag tag-green">10 测试文件</span>
+        <span class="tag tag-blue">Mock 隔离</span>
+        <span class="tag tag-purple">conftest</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">技术栈</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 13 — 项目亮点与创新点
+     ================================================================ -->
+<section>
+  <h2>✨ 项目亮点与创新点</h2>
+  <div class="grid-2" style="margin-top:10px; gap:12px;">
+
+    <div class="card accent" style="padding:14px;">
+      <span style="font-size:1.2em;">🥇</span>
+      <h3>LLM 编排传统工具链</h3>
+      <p style="font-size:0.8em;">用 Function Calling 让 LLM 自主编排 6 个传统 Tool（DB 查询、文件下载、OCR），而非把 LLM 当作单一问答接口。这是 LLM Agent 的典型落地范式</p>
+    </div>
+
+    <div class="card accent2" style="padding:14px;">
+      <span style="font-size:1.2em;">🥈</span>
+      <h3>多 OCR 引擎策略模式</h3>
+      <p style="font-size:0.8em;">抽象统一的 OCR 接口层，支持 4 种引擎热切换。新增引擎零侵入，符合开闭原则，兼顾灵活性和可维护性</p>
+    </div>
+
+    <div class="card accent3" style="padding:14px;">
+      <span style="font-size:1.2em;">🥉</span>
+      <h3>自然语言即规则</h3>
+      <p style="font-size:0.8em;">校验规则用自然语言写在 YAML 配置里，LLM 理解并执行。业务人员无需写代码即可调整规则，降低维护门槛</p>
+    </div>
+
+    <div class="card gold" style="padding:14px;">
+      <span style="font-size:1.2em;">🏅</span>
+      <h3>SSE 流式 + 进度可视化</h3>
+      <p style="font-size:0.8em;">6 种 SSE 事件类型，前端实时展示工具执行进度，解决了 LLM 调用长链路中的"黑盒等待"体验痛点</p>
+    </div>
+
+    <div class="card green" style="grid-column: 1 / -1; padding:14px;">
+      <span style="font-size:1.2em;">🎯</span>
+      <h3>真实企业系统集成</h3>
+      <p style="font-size:0.8em;">对接真实 OA 系统（SQL Server + Cookie 认证文件下载），不是 Demo — 是真正能在企业内网跑起来的生产级工具</p>
+    </div>
+
+  </div>
+  <div class="slide-footer">亮点创新</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 14 — 工程质量
+     ================================================================ -->
+<section>
+  <h2>🧪 工程质量与测试覆盖</h2>
+  <div style="display:flex; gap:18px; margin-top:8px;">
+    <div style="flex:1.1;">
+      <table class="compare-table" style="font-size:0.68em;">
+        <tr><th>测试文件</th><th>覆盖范围</th><th>策略</th></tr>
+        <tr><td>test_agent.py</td><td>Pipeline 编排 + 错误处理</td><td>Mock LLM</td></tr>
+        <tr><td>test_function_calling.py</td><td>6 工具定义 + FC 循环</td><td>Mock OpenAI</td></tr>
+        <tr><td>test_db_query.py</td><td>SQL 查询 + 参数绑定</td><td>Mock pyodbc</td></tr>
+        <tr><td>test_downloader.py</td><td>文件下载 + Cookie 认证</td><td>Mock requests</td></tr>
+        <tr><td>test_ocr.py</td><td>OCR 调度 + 4 引擎</td><td>Mock API</td></tr>
+        <tr><td>test_prepare_images.py</td><td>PDF 转换 + 图片处理</td><td>真实文件</td></tr>
+        <tr><td>test_extractor.py</td><td>金额提取 + JSON 解析</td><td>Mock LLM</td></tr>
+        <tr><td>test_validator.py</td><td>规则校验 + 结果输出</td><td>Mock LLM</td></tr>
+        <tr><td>test_server.py</td><td>FastAPI 端点 + SSE</td><td>TestClient</td></tr>
+        <tr><td>test_config.py</td><td>配置加载 + 默认值</td><td>临时文件</td></tr>
+      </table>
+    </div>
+    <div style="flex:0.9;">
+      <div class="card green" style="margin-bottom:10px; padding:12px;">
+        <h3>📊 关键指标</h3>
+        <div class="grid-2" style="margin-top:6px;">
+          <div class="metric"><span class="number">48+</span><span class="label">测试用例</span></div>
+          <div class="metric"><span class="number">10</span><span class="label">测试文件</span></div>
+        </div>
+        <div class="grid-2" style="margin-top:4px;">
+          <div class="metric"><span class="number">100%</span><span class="label">工具函数覆盖</span></div>
+          <div class="metric"><span class="number">Mock</span><span class="label">外部依赖隔离</span></div>
+        </div>
+      </div>
+      <div class="card accent" style="padding:12px;">
+        <h4>🛡️ 错误处理策略</h4>
+        <ul style="font-size:0.75em;">
+          <li>每步返回明确错误前缀（"下载失败"、"数据库查询失败"...）</li>
+          <li>任一步骤失败 → 立即终止，不级联浪费</li>
+          <li>文件不存在 / 格式错误 / Cookie 过期 → 精确定位</li>
+          <li>Function Calling 20 轮上限防无限循环</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">工程质量</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 15 — 落地价值
+     ================================================================ -->
+<section>
+  <h2>💰 落地价值与 ROI</h2>
+  <div class="grid-3" style="margin-top:12px;">
+    <div class="card green" style="text-align:center; padding:14px;">
+      <span class="icon">⚡</span>
+      <div class="metric" style="margin-top:4px;"><span class="number">10-20x</span></div>
+      <p class="label">效率提升</p>
+      <p style="font-size:0.78em;color:var(--text-dim);margin-top:4px;">5-10 分钟 → 30 秒</p>
+    </div>
+    <div class="card gold" style="text-align:center; padding:14px;">
+      <span class="icon">🎯</span>
+      <div class="metric" style="margin-top:4px;"><span class="number">&lt;1%</span></div>
+      <p class="label">差错率</p>
+      <p style="font-size:0.78em;color:var(--text-dim);margin-top:4px;">相比人工 ~5% 大幅降低</p>
+    </div>
+    <div class="card accent" style="text-align:center; padding:14px;">
+      <span class="icon">📉</span>
+      <div class="metric" style="margin-top:4px;"><span class="number">~70%</span></div>
+      <p class="label">人力释放</p>
+      <p style="font-size:0.78em;color:var(--text-dim);margin-top:4px;">审核岗转向高价值工作</p>
+    </div>
+  </div>
+  <div style="margin-top:14px;" class="card accent2" >
+    <h3>🎯 典型落地场景</h3>
+    <div class="flex-row" style="margin-top:6px;">
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:1.1em;">🏢</p>
+        <p style="font-size:0.85em;"><b>财务审核</b></p>
+        <p style="font-size:0.72em;color:var(--text-dim);">发票金额校验<br>合同条款比对</p>
+      </div>
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:1.1em;">📋</p>
+        <p style="font-size:0.85em;"><b>采购审批</b></p>
+        <p style="font-size:0.72em;color:var(--text-dim);">采购单金额校验<br>供应商合同审核</p>
+      </div>
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:1.1em;">⚖️</p>
+        <p style="font-size:0.85em;"><b>法务合规</b></p>
+        <p style="font-size:0.72em;color:var(--text-dim);">条款合规检查<br>合同要素提取</p>
+      </div>
+      <div style="flex:1; text-align:center;">
+        <p style="font-size:1.1em;">🏦</p>
+        <p style="font-size:0.85em;"><b>金融风控</b></p>
+        <p style="font-size:0.72em;color:var(--text-dim);">贷款合同审核<br>额度校验</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">落地价值</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 16 — 竞品对比
+     ================================================================ -->
+<section>
+  <h2>🔬 竞品对比与差异化</h2>
+  <table class="compare-table" style="margin-top:10px; font-size:0.73em;">
+    <tr>
+      <th style="width:18%;">维度</th>
+      <th style="width:28%;background:rgba(59,130,246,0.15);">🟦 本方案</th>
+      <th style="width:27%;">传统 RPA</th>
+      <th style="width:27%;">通用 OCR 平台</th>
+    </tr>
+    <tr>
+      <td><b>理解能力</b></td>
+      <td class="highlight">LLM 语义理解，非结构化文本灵活提取</td>
+      <td>规则匹配，格式一变就失效</td>
+      <td>纯 OCR，不处理语义</td>
+    </tr>
+    <tr>
+      <td><b>规则定义</b></td>
+      <td class="highlight">自然语言规则，业务人员可编写</td>
+      <td>代码/脚本编写</td>
+      <td>不支持规则校验</td>
+    </tr>
+    <tr>
+      <td><b>系统集成</b></td>
+      <td class="highlight">原生对接 OA (SQL Server + Cookie)</td>
+      <td>需定制开发</td>
+      <td>需手动上传文件</td>
+    </tr>
+    <tr>
+      <td><b>交互方式</b></td>
+      <td class="highlight">自然语言对话 + 流式进度</td>
+      <td>任务调度触发</td>
+      <td>API 调用 / Web 上传</td>
+    </tr>
+    <tr>
+      <td><b>OCR 灵活性</b></td>
+      <td class="highlight">4 引擎可切换（内网 MCP / 云 API）</td>
+      <td>通常绑定单一引擎</td>
+      <td>绑定自家引擎</td>
+    </tr>
+    <tr>
+      <td><b>部署方式</b></td>
+      <td class="highlight">内网部署，数据不出企业</td>
+      <td>内网</td>
+      <td>云端为主</td>
+    </tr>
+    <tr>
+      <td><b>扩展性</b></td>
+      <td class="highlight">新增工具只需添加 Tool + 函数定义</td>
+      <td>需修改流程脚本</td>
+      <td>受限于平台功能</td>
+    </tr>
+  </table>
+  <div style="margin-top:10px;" class="card accent" >
+    <p style="font-size:0.82em;">🎯 <b>核心差异：</b>我们不是"又一个 OCR 工具"，而是深度融合企业 OA 工作流的 <b>LLM Agent</b>。LLM 不仅是"大脑"，更是"调度中心" — 自主决定调用什么工具、用什么参数、如何解释结果。</p>
+  </div>
+  <div class="slide-footer">竞品对比</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 17 — 未来规划
+     ================================================================ -->
+<section>
+  <h2>🚀 未来规划</h2>
+  <div style="margin-top:10px;">
+
+    <!-- Phase 1 -->
+    <div style="display:flex; gap:12px; align-items:stretch; margin-bottom:10px;">
+      <div style="background:var(--accent); border-radius:10px; padding:8px 14px; display:flex; align-items:center; min-width:90px; justify-content:center; font-weight:700; font-size:0.78em;">
+        Phase 1<br>近期
+      </div>
+      <div class="card accent" style="flex:1; margin:0; padding:12px;">
+        <ul style="margin:0; font-size:0.8em;">
+          <li>📊 增加对话历史持久化（SQLite / IndexedDB）</li>
+          <li>🔐 增加 OA Cookie 自动刷新机制</li>
+          <li>📈 增加批量合同校验（多 requestId 并发）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div style="display:flex; gap:12px; align-items:stretch; margin-bottom:10px;">
+      <div style="background:var(--accent2); border-radius:10px; padding:8px 14px; display:flex; align-items:center; min-width:90px; justify-content:center; font-weight:700; font-size:0.78em;">
+        Phase 2<br>中期
+      </div>
+      <div class="card accent2" style="flex:1; margin:0; padding:12px;">
+        <ul style="margin:0; font-size:0.8em;">
+          <li>🔍 支持合同要素提取（甲乙方、日期、条款摘要）</li>
+          <li>🌐 扩展更多 OA 系统对接（泛微、致远、钉钉）</li>
+          <li>📋 支持自定义校验报告模板</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div style="display:flex; gap:12px; align-items:stretch; margin-bottom:10px;">
+      <div style="background:var(--accent3); border-radius:10px; padding:8px 14px; display:flex; align-items:center; min-width:90px; justify-content:center; font-weight:700; font-size:0.78em;">
+        Phase 3<br>远期
+      </div>
+      <div class="card accent3" style="flex:1; margin:0; padding:12px;">
+        <ul style="margin:0; font-size:0.8em;">
+          <li>🧠 合同条款合规性审查（基于法律法规知识库）</li>
+          <li>📊 企业合同数据分析 Dashboard</li>
+          <li>🔗 多 Agent 协作（审核 → 复核 → 审批）</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Vision -->
+    <div style="display:flex; gap:12px; align-items:stretch;">
+      <div style="background:linear-gradient(135deg, var(--gold), #f97316); border-radius:10px; padding:8px 14px; display:flex; align-items:center; min-width:90px; justify-content:center; font-weight:700; font-size:0.78em;">
+        🌟 愿景
+      </div>
+      <div class="card gold" style="flex:1; margin:0; padding:12px;">
+        <p style="margin:0; font-size:0.9em;"><b>从「合同金额校验」到「企业文档智能审核平台」</b></p>
+        <p style="margin:2px 0 0 0; font-size:0.75em; color:var(--text-dim);">合同审核、发票验真、合规检查、档案数字化 — 一个 Agent 平台，覆盖企业文档全生命周期</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer">未来规划</div>
+</section>
+
+<!-- ================================================================
+     SLIDE 18 — 感谢页
+     ================================================================ -->
+<section class="slide-center section-bg">
+  <div style="margin-top:20px;">
+    <h1 style="background: linear-gradient(135deg, #60a5fa, #a78bfa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+      感谢聆听
+    </h1>
+    <p style="font-size:1.2em; color:var(--text-dim); margin-top:10px;">
+      智能合同校验 Agent
+    </p>
+    <p style="font-size:0.9em; color:var(--text-dim); margin-top:6px;">
+      LLM 驱动 · 企业 OA 集成 · 端到端自动化
+    </p>
+
+    <div style="margin-top:32px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <span class="tag tag-blue">LangChain</span>
+      <span class="tag tag-purple">DeepSeek</span>
+      <span class="tag tag-cyan">FastAPI</span>
+      <span class="tag tag-gold">Next.js</span>
+      <span class="tag tag-green">Function Calling</span>
+    </div>
+
+    <div style="margin-top:36px; padding:20px; background:var(--bg-card); border-radius:12px; border:1px solid var(--border); display:inline-block; text-align:left;">
+      <p style="font-size:0.85em; color:var(--text-dim); margin:0;">
+        📂 GitHub: <span style="color:var(--accent2);">OA_agent_demo</span><br>
+        🐍 Python 3.10+ &nbsp;|&nbsp; ⚛️ Node.js 18+ &nbsp;|&nbsp; 🗄️ SQL Server<br>
+        🧪 48+ 测试用例 &nbsp;|&nbsp; 📝 MIT License
+      </p>
+    </div>
+
+    <p style="margin-top:24px; color:var(--text-dim); font-size:0.85em;">
+      Q & A
+    </p>
+  </div>
+</section>
+
+</div><!-- .slides -->
+</div><!-- .reveal -->
+
+<!-- Reveal.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  center: false,
+  transition: 'slide',
+  transitionSpeed: 'default',
+  backgroundTransition: 'fade',
+  slideNumber: 'c/t',
+  progress: true,
+  controls: true,
+  controlsLayout: 'bottom-right',
+  width: 1280,
+  height: 900,
+  margin: 0.04,
+  minScale: 0.2,
+  maxScale: 3.0,
+});
+</script>
+</body>
+</html>

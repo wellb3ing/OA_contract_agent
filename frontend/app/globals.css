@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Smooth scrolling for the message list */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for chat messages */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 3px;
+}

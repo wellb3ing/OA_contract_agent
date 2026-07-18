@@ -1,0 +1,17 @@
+langchain
+langchain-openai
+langchain-community
+pdf2image
+Pillow
+SQLAlchemy
+pyodbc
+requests
+PyYAML
+pytest
+pytest-mock
+pytest-asyncio
+fastapi>=0.115.0
+uvicorn>=0.34.0
+python-multipart>=0.0.20
+openai>=1.0.0
+langsmith

@@ -1,0 +1,109 @@
+database:
+  type: "mssql"
+  driver: "ODBC Driver 17 for SQL Server"
+  server: ""
+  port:
+  user: ""
+  password: ""
+  db: "ecology"
+  sql: |
+    DECLARE @requestId INT = :request_id;
+
+    DECLARE @billId INT, @tableName NVARCHAR(200);
+    DECLARE @sql NVARCHAR(MAX), @allIds NVARCHAR(MAX) = '';
+
+    -- Step 1: billId + 表名
+    SELECT @billId = wb.formid, @tableName = wbi.tablename
+    FROM workflow_requestbase wr
+    JOIN workflow_base wb ON wb.id = wr.workflowid
+    LEFT JOIN workflow_bill wbi ON wbi.id = wb.formid
+    WHERE wr.requestid = @requestId;
+
+    -- Step 2: 拼接所有附件字段值
+    SELECT @sql = ISNULL(@sql + '+ '','' + ', '')
+      + 'ISNULL(CAST([' + fieldname + '] AS NVARCHAR(MAX)), '''')'
+    FROM workflow_billfield
+    WHERE billid = @billId AND fieldhtmltype = '6' AND detailtable = '';
+
+    IF @sql IS NULL
+    BEGIN
+        SELECT '[]' AS result;
+    END
+    ELSE
+    BEGIN
+        SET @sql = 'SELECT @ids = ' + @sql + ' FROM ' + QUOTENAME(@tableName)
+          + ' WHERE requestId = ' + CAST(@requestId AS NVARCHAR);
+        EXEC sp_executesql @sql, N'@ids NVARCHAR(MAX) OUTPUT', @allIds OUTPUT;
+
+        -- 去掉首尾逗号
+        SET @allIds = REPLACE(REPLACE(@allIds, ',,', ','), ',,', ',');
+        WHILE LEFT(@allIds, 1) = ',' SET @allIds = STUFF(@allIds, 1, 1, '');
+        WHILE RIGHT(@allIds, 1) = ',' SET @allIds = STUFF(@allIds, LEN(@allIds), 1, '');
+
+        IF @allIds = '' OR @allIds = '0'
+        BEGIN
+            SELECT '[]' AS result;
+        END
+        ELSE
+        BEGIN
+            -- Step 3 & 4: XML 拆分 + 查文件路径
+            DECLARE @xml XML = CAST('<a>' + REPLACE(@allIds, ',', '</a><a>') + '</a>' AS XML);
+            WITH split_ids AS (
+                SELECT LTRIM(RTRIM(T.c.value('.', 'NVARCHAR(100)'))) AS docId
+                FROM @xml.nodes('/a') T(c)
+            )
+            SELECT DISTINCT
+                imf.imagefileid  AS file_id,
+                imf.imagefilename AS filename,
+                imf.fileSize     AS file_size,
+                imf.filerealpath AS physical_path
+            FROM split_ids s
+            JOIN docimagefile dif ON dif.docid = CAST(s.docId AS INT)
+            JOIN imagefile imf ON imf.imagefileid = dif.imagefileid
+            WHERE s.docId != ''
+            ORDER BY imf.imagefileid;
+        END
+    END
+
+download:
+  base_url: ""
+  cookie: ""
+
+ocr:
+  provider: "mcp"
+  baidu:
+    api_key: "your_baidu_api_key"
+    secret_key: "your_baidu_secret_key"
+  aliyun:
+    access_key_id: "your_aliyun_access_key_id"
+    access_key_secret: "your_aliyun_access_key_secret"
+    region: "cn-shanghai"
+  tencent:
+    secret_id: "your_tencent_secret_id"
+    secret_key: "your_tencent_secret_key"
+    region: "ap-guangzhou"
+  mcp:
+    url: ""
+
+oa:
+  base_url: ""
+  login_id: ""           # OA 登录用户名
+  password: ""           # OA 登录密码
+  app_id: ""             # 退回接口所需的 appid
+  reject_delay_seconds: 5     # 收到 requestId 后等待 N 秒再退回（等 OA 流程落库）
+
+validation:
+  # ── 核心校验（代码执行，不会误判）──────────────────────────────
+  amount_threshold: 100         # 金额超过此值（元）时，启用签字检查
+  required_signature: "孙小福康"  # 授权代表签字必须包含的关键字
+  # ── 额外规则（可选，LLM 辅助校验）──────────────────────────────
+  rules: []
+
+langsmith:
+  api_key: ""                     # LangSmith API key（留空则禁用 tracing）
+  project: "OA_contract_agent"       #
+
+deepseek:
+  api_key: ""
+  base_url: "https://api.deepseek.com"
+  model: "deepseek-chat"
